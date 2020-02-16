@@ -1,35 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void tryAt(int matrix[7][8], int pos, int player, int moves, int *k, int *win, int *loss);
+int tryAt(int matrix[7][8], int pos, int player, int moves);
 int hasWon(int matrix[7][8], int *x, int *y);
 void check (int matrix[7][8], int player, int *count, int x, int y, int mX, int mY);
 int insertInMatrix(int matrix[7][8], int pos, int player, int *x, int *y);
 void removeFromMatrix(int matrix[7][8], int pos, int player);
 
-void tryAt(int matrix[7][8], int pos, int player, int moves, int *k, int *win, int *loss){
+int tryAt(int matrix[7][8], int pos, int player, int moves){
     /*player tries a move at pos*/
     if(moves == 0){
-        return;
+        return 0;
     }
     int x, y;
     if(insertInMatrix(matrix, pos, player, &x, &y)){
-        *k = *k + 1;
         if(hasWon(matrix, &x, &y) == 1){
             removeFromMatrix(matrix, pos, player);
             if(player == 1)
-                *loss = *loss + 1;
+                return -1;
             else
-                *win = *win + 1;
+                return 1;
         }
         else{
-            int player2 = player == 2 ? 1 : 2, i;
-            for(i = 0; i < 8; ++i){
-                tryAt(matrix, i, player2, moves-1, k, win, loss);
+            int player2 = player == 2 ? 1 : 2, b, i;
+            if(player == 1){
+                b = -2;
+                for(i = 0; i < 8; ++i){
+                    int q = tryAt(matrix, i, player2, moves-1);
+                    if(q > b){
+                        b = q;
+                    }
+                }
+            }
+            if(player == 2){
+                b = 2;
+                for(i = 0; i < 8; ++i){
+                    int q = tryAt(matrix, i, player2, moves-1);
+                    if(q < b){
+                        b = q;
+                    }
+                }
             }
             removeFromMatrix(matrix, pos, player);
+            return b;
         }
     }
+    else
+        return 0;
 }
 
 int hasWon(int matrix[7][8], int *x, int *y){
@@ -112,13 +129,6 @@ int main()
             matrix[i][j] = 0;
         }
     }
-    int wins[8], loss[8], games[8];
-    double predicts[8];
-    for(i = 0; i < m; ++i){
-        wins[i] = 0;
-        games[i] = 0;
-        predicts[i] = 0;
-    }
     int x=0, y=0;
     while(1){
         int pos = 0;
@@ -132,24 +142,16 @@ int main()
             printf("\n");
         }
         printf("\n");
+        int r = -1, t = 0;
         for(i = 0; i < m; ++i){
-            int k = 0, w = 0, l = 0;
-            tryAt(matrix, i, 2, 8, &k, &w, &l);
-            wins[i] = w;
-            loss[i] = l;
-            games[i] = k;
-            predicts[i] = ((double)wins[i])/((double)games[i]);
-            printf("%d %d %d %f\n", wins[i], loss[i], games[i], predicts[i]);
-        }
-        double max = predicts[0];
-        pos = 0;
-        for(i = 0; i < m; ++i){
-            if(predicts[i] > max){
-                max = predicts[i];
-                pos = i;
+            int r1 = tryAt(matrix, i, 2, 8);
+            printf("%d\n", r1);
+            if(r1 > r){
+                r = r1;
+                t = i;
             }
         }
-        insertInMatrix(matrix,pos,2,&x,&y);
+        insertInMatrix(matrix,t,2,&x,&y);
         for(i = 0; i < 7; ++i){
             for(j = 0; j < 8; ++j){
                 printf("%d ", matrix[i][j]);
