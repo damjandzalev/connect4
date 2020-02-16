@@ -78,9 +78,37 @@ int hasWon(int matrix[7][8], int *x, int *y){
     int k6 = 0;//down-left
     check(matrix, player, &k6, *x-1,*y-1, -1,-1);
     int k7 = 0;//left
-    check(matrix, player, &k2, *x-1,*y,   -1,0);
+    check(matrix, player, &k7, *x-1,*y,   -1,0);
     int k8 = 0;//left-up
-    check(matrix, player, &k2, *x-1,*y+1, -1,1);
+    check(matrix, player, &k8, *x-1,*y+1, -1,1);
+    if(k1+k5 >= 3 ||
+       k2+k6 >= 3 ||
+       k3+k7 >= 3 ||
+       k4+k8 >= 3)
+        return 1;
+    return 0;
+}
+
+int hasWonPrint(int matrix[7][8], int *x, int *y){
+    /* checks whether the new input at x, y has won the game for the player that made the move*/
+    int player = matrix[*x][*y];
+    int k1 = 0;//up
+    check(matrix, player, &k1, *x,*y+1,   0,1);
+    int k2 = 0;//up-right
+    check(matrix, player, &k2, *x+1,*y+1, 1,1);
+    int k3 = 0;//right
+    check(matrix, player, &k3, *x+1,*y,   1,0);
+    int k4 = 0;//down-right
+    check(matrix, player, &k4, *x+1,*y-1, 1,-1);
+    int k5 = 0;//down
+    check(matrix, player, &k5, *x,*y-1,   0,-1);
+    int k6 = 0;//down-left
+    check(matrix, player, &k6, *x-1,*y-1, -1,-1);
+    int k7 = 0;//left
+    check(matrix, player, &k7, *x-1,*y,   -1,0);
+    int k8 = 0;//left-up
+    check(matrix, player, &k8, *x-1,*y+1, -1,1);
+    printf("%d %d\n%d %d\n%d %d\n%d %d", k1, k5, k2, k6, k3, k7, k4, k8);
     if(k1+k5 >= 3 ||
        k2+k6 >= 3 ||
        k3+k7 >= 3 ||
@@ -143,9 +171,11 @@ int main()
     }
     int x=0, y=0;
     while(1){
-        int pos = 0;
-        printf("insert 0-7\n");
-        scanf("%d",&pos);
+        int pos = -1;
+        while(pos<0 || pos > 7){
+            printf("insert 0-7\n");
+            scanf("%d",&pos);
+        }
         insertInMatrix(matrix,pos,1,&x,&y);
         for(i = 0; i < 7; ++i){
             for(j = 0; j < 8; ++j){
@@ -154,13 +184,16 @@ int main()
             printf("\n");
         }
         printf("\n");
+        if(hasWon(matrix,&x, &y)){
+            printf("\nplayer wins\n");
+            break;
+        }
         int res[8], win[8], lose[8], games[8];
         for(i = 0; i < 8; ++i){
             win[i] = 0;
             lose[i] = 0;
             games[i] = 0;
-            res[i] = tryAt(matrix, i, 2, 8, &win[i], &lose[i], &games[i]);
-            printf("%d ", 8-i);
+            res[i] = tryAt(matrix, i, 2, 7, &win[i], &lose[i], &games[i]);
         }
         double maks = -1;
         int r1 = -1, t = 0;
@@ -187,6 +220,11 @@ int main()
             printf("\n");
         }
         printf("\n");
+        if(hasWon(matrix,&x, &y)){
+            hasWonPrint(matrix, &x, &y);
+            printf("\nai wins\n");
+            break;
+        }
     }
     return 0;
 }
