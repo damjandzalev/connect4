@@ -8,14 +8,22 @@ int insertInMatrix(int matrix[7][8], int pos, int player, int *x, int *y);
 void removeFromMatrix(int matrix[7][8], int pos, int player);
 
 int tryAt(int matrix[7][8], int pos, int player, int moves, int *win, int *lose, int *count){
-    /*player tries a move at pos*/
+    /*player tries a move at pos
+    pos - where to try a move
+    player - which player tries a move
+    moves - how many moves are left to try in the search
+    *win - number of wins at top of the tree
+    *lose - number of losses at top of the tree
+    *count - number of games simulated
+    */
     if(moves == 0){
+        *count = *count+1;
         return 0;
     }
     int x, y;
     if(insertInMatrix(matrix, pos, player, &x, &y)){
-        *count = *count+1;
         if(hasWon(matrix, &x, &y) == 1){
+            *count = *count+1;
             removeFromMatrix(matrix, pos, player);
             if(player == 1){
                 *lose = *lose+1;
@@ -151,8 +159,8 @@ int main()
             win[i] = 0;
             lose[i] = 0;
             games[i] = 0;
-            res[i] = tryAt(matrix, i, 2, 7, &win[i], &lose[i], &games[i]);
-            printf("%d %d %d %d\n", res[i], win[i], lose[i], games[i]);
+            res[i] = tryAt(matrix, i, 2, 8, &win[i], &lose[i], &games[i]);
+            printf("%d ", 8-i);
         }
         double maks = -1;
         int r1 = -1, t = 0;
@@ -171,6 +179,7 @@ int main()
             }
         }
         insertInMatrix(matrix,t,2,&x,&y);
+        printf("\nmaks:%f, pos:%d \n", maks, t);
         for(i = 0; i < 7; ++i){
             for(j = 0; j < 8; ++j){
                 printf("%d ", matrix[i][j]);
