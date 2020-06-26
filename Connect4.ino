@@ -40,6 +40,13 @@ byte won[]={
   B10100101,
   B11000011,
   };
+
+int power(int a, int b){
+  if(b == 0)
+    return 1;
+  return a*power(a,b-1);
+}
+
 int tryAt(int matrix[8][8], int pos, int player, int moves, int *win, int *lose, int *count){
     /*player tries a move at pos
     pos - where to try a move
@@ -50,20 +57,19 @@ int tryAt(int matrix[8][8], int pos, int player, int moves, int *win, int *lose,
     *count - number of games simulated
     */
     if(moves == 0){
-        *count = *count+1;
         return 0;
     }
     int x, y;
     if(insertInMatrix(matrix, pos, player, &x, &y)){
         if(hasWon(matrix, &x, &y) == 1){
-            *count = *count+1;
+            *count = *count+power(8,moves);
             removeFromMatrix(matrix, pos);
             if(player == 1){
-                *lose = *lose+1;
+                *lose = *lose+power(8,moves);
                 return -1;
             }
             else{
-                *win = *win+1;
+                *win = *win+power(8,moves);
                 return 1;
             }
         }
@@ -76,7 +82,7 @@ int tryAt(int matrix[8][8], int pos, int player, int moves, int *win, int *lose,
                     if(q > b){
                         b = q;
                     }
-                    if(moves-1 == 0){break;}
+                    if(moves-1 == 0){*count = *count + 8; break;}
                 }
             }
             if(player == 2){
@@ -86,15 +92,17 @@ int tryAt(int matrix[8][8], int pos, int player, int moves, int *win, int *lose,
                     if(q < b){
                         b = q;
                     }
-                    if(moves-1 == 0){break;}
+                    if(moves-1 == 0){*count = *count + 8; break;}
                 }
             }
             removeFromMatrix(matrix, pos);
             return b;
         }
     }
-    else
+    else{
+        *count = *count+power(8,moves);
         return 0;
+    }
 }
 
 int hasWon(int matrix[8][8], int *x, int *y){
@@ -126,11 +134,11 @@ int hasWon(int matrix[8][8], int *x, int *y){
     return 0;
 }
 
-void check (int matrix[8][8], int player, int *count, int x, int y, int mX, int mY){
+void check (int matrix[8][8], int player, int *k, int x, int y, int mX, int mY){
     if(x>=0 && x<=7 && y>=0 && y<=7){
         if(matrix[x][y] == player){
-            *count = *count + 1;
-            check(matrix, player, count, x+mX, y+mY, mX, mY);
+            *k = *k + 1;
+            check(matrix, player, k, x+mX, y+mY, mX, mY);
         }
     }
 }
